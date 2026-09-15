@@ -1,14 +1,20 @@
 import { ChangeDetectionStrategy, Component, effect, ElementRef, signal, viewChild } from '@angular/core';
-import mapboxgl, { LngLat, MapMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatLike, MapMouseEvent } from 'mapbox-gl';
 import { environment } from '../../../environments/environment';
+import { DecimalPipe } from '@angular/common';
+
+interface Marker {
+  id: string,
+  mapboxMarker: mapboxgl.Marker,
+}
 
 @Component({
   selector: 'app-markers',
-  imports: [],
+  imports: [DecimalPipe],
   templateUrl: './markers.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    div{
+    #map{
       width: 100vw;
       height: calc(100vh - 64px);
     }
@@ -19,6 +25,7 @@ export class Markers {
   zoom = signal(10);
   map = signal<mapboxgl.Map | null>(null);
   coordinates = signal({ lat: -38.951844251137835, lng: -68.05916053744693 });
+  markers = signal<Marker[]>([]);
 
   color = () => {
     return '#xxxxxx'.replace(/x/g, (y) =>
@@ -36,7 +43,7 @@ export class Markers {
 
   mapListeners(map: mapboxgl.Map) {
 
-    map.on('click',(event)=> this.mapClick(event)
+    map.on('click', (event) => this.mapClick(event)
       // {
       // const newMarker = new mapboxgl.Marker().setLngLat(event.lngLat).addTo(map);
       // }
@@ -45,12 +52,18 @@ export class Markers {
     this.map.set(map);
   }
 
-  mapClick(event: MapMouseEvent){
-    if(!this.map) return;
+  mapClick(event: MapMouseEvent) {
+    if (!this.map) return;
     const map = this.map()!;
 
-    const newMarker = new mapboxgl.Marker({color: this.color()}).setLngLat(event.lngLat).addTo(map);
-    console.log(event.lngLat);
+    const mapboxMarker = new mapboxgl.Marker({ color: this.color() }).setLngLat(event.lngLat).addTo(map);
+    const newMarker: Marker = {
+      id: '' + Math.floor(Math.random() * 10000000001),
+      mapboxMarker: mapboxMarker
+    }
+    this.markers.update((markers) => [...markers, newMarker])
+
+    console.log(this.markers());
 
   }
 
@@ -73,6 +86,24 @@ export class Markers {
     const marker = new mapboxgl.Marker({}).setLngLat([-68.05, -38.96]).addTo(map);
 
     this.mapListeners(map);
+  }
+
+  flyToMarker(lngLat: LngLatLike) {
+    if (!this.map) return;
+
+    this.map()?.flyTo({
+      center: lngLat
+    })
+  }
+
+  deleteMarker(marker: Marker) {
+    if (!this.map()) return;
+    const map = this.map()!;
+
+    marker.mapboxMarker.remove();
+
+    this.markers.set(this.markers().filter((m) => m.id !== marker.id));
+    // this.markers.update(this.markers().filter((m) => m.id !== marker.id));
   }
 
 }
