@@ -1,8 +1,8 @@
-<div #map id="map">
+<div #map class="h-[60vh] sm:h-[calc(100vh-64px)]">
 
 </div>
 
-<section class="fixed w-[260px] bg-white rounded top-20 left-20 p-2">
+<section class="h-[40vh] sm:fixed sm:w-65 bg-white sm:rounded top-20 left-20 p-2 overflow-y-scroll">
   <h2 class="text-xl font-bold text-black mb-2">Markers</h2>
   <div class="flex flex-col gap-2">
     @for (marker of markers(); track marker.id) {
@@ -18,7 +18,7 @@
       </label>
     </div>
     }@empty {
-    <div class="flex justify-center items-center bg-blue-100 rounded">
+    <div class="flex justify-center items-center bg-blue-100 rounded p-2  ">
       <p class="text-xs text-secondary">No hay marcadores</p>
     </div>
     }

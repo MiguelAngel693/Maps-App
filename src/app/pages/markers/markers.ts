@@ -13,12 +13,6 @@ interface Marker {
   imports: [DecimalPipe],
   templateUrl: './markers.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: `
-    #map{
-      width: 100vw;
-      height: calc(100vh - 64px);
-    }
-    `
 })
 export class Markers {
   divElement = viewChild<ElementRef>('map');
